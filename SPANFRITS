@@ -1,0 +1,31 @@
+TK 3
+CODIGO
+aws network-firewall update-rule-group \
+--rule-group-arn RULEGROUP-ARN-HERE \
+--update-token UPDATE-TOKEN-HERE \
+--rule-group file://NAME-OF-HOMENET-JSON-FILE-HERE.json \
+--region us-east-1
+
+```
+
+Aqui está um exemplo de JSON do grupo de regras:
+
+```
+
+{ "RulesSource":
+        { "RulesSourceList":
+                { "GeneratedRulesType": "ALLOWLIST",
+                        "Targets": [".amazon.com"],
+                        "TargetTypes": [ "HTTP_HOST", "TLS_SNI" ]
+                }
+        },
+        "RuleVariables":
+                { "IPSets":
+                        { "HOME_NET":
+                                { "Definition":
+                                        [ "10.1.0.0/16", "10.2.0.0/16" ]
+                                }
+                        }
+                }
+}
+```

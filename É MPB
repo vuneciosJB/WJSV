@@ -1,0 +1,235 @@
+CODDIGO 1
+
+
+
+`python marketing_data = run_sql('Select * from public.marketing_campaign_raw_data;') marketing_data.head(5)` 2. Etapa 4
+
+``` python get_ipython().run_line_magic('matplotlib', 'inline')
+
+```
+import matplotlib
+
+#add a line to create
+matplotlib.rcParams["figure.dpi"] = 100
+
+#generate a plot for campaign data and identify which attribute stands out.
+marketing_data.plot()
+```
+
+```
+
+
+##############################################################
+
+`python marketing_encoded_data = run_sql(""" select age, balance, day, duration, campaign, days_since_last_contact, previous, case when job ='blue-collar' then 1 else 0 end as job_blue_collor, case when job ='entrepreneur' then 1 else 0 end as job_entrepreneur, case when job ='housemaid' then 1 else 0 end as job_housemaid, case when job ='management' then 1 else 0 end as job_management, case when job ='retired' then 1 else 0 end as job_retired, case when job ='self-employed' then 1 else 0 end as job_self_employed, case when job ='student'then 1 else 0 end as job_student, case when job ='technician' then 1 else 0 end as job_technician, case when job ='unemployed' then 1 else 0 end as job_unemployed, case when job ='unknown' then 1 else 0 end as job_unknown, case when job ='services' then 1 else 0 end as job_services, case when month='jan' Then 1 else 0 end as month_jan, case when month='feb' Then 1 else 0 end as month_feb, case when month='mar' Then 1 else 0 end as month_mar, case when month='may' Then 1 else 0 end as month_may, case when month='jun' Then 1 else 0 end as month_jun, case when month='jul' Then 1 else 0 end as month_jul, case when month='aug' Then 1 else 0 end as month_aug, case when month='sep' Then 1 else 0 end as month_sep, case when month='oct' Then 1 else 0 end as month_oct, case when month='nov' Then 1 else 0 end as month_nov, case when month='dec' Then 1 else 0 end as month_dec, case when marital='married' Then 1 else 0 end as marital_married, case when marital='single' Then 1 else 0 end as marital_single, case when education='secondary' Then 1 else 0 end as education_secondary, case when education='tertiary' Then 1 else 0 end as education_tertiary, case when education='unknown' Then 1 else 0 end as education_unknown, case when is_default='yes' Then 1 else 0 end as default_yes, case when housing='yes' Then 1 else 0 end as housing_yes, case when loan='yes' Then 1 else 0 end as loan_yes, case when contact='telephone' Then 1 else 0 end as contact_telephone, case when contact='unknown' Then 1 else 0 end as contact_unknown from public.marketing_campaign_raw_data; """ ) marketing_encoded_data.head(5)`
+
+
+#########################################################################################################################################################################
+#########################################################################################################################################################################
+CODIGO 2
+
+    
+    ```python
+    from sagemaker import RandomCutForest
+    session = sagemaker.Session()
+    
+    rcf = RandomCutForest(
+    role=execution_role,
+    instance_count=1,
+    instance_type="ml.m4.xlarge",
+    data_location=f"s3://{bucket}/{prefix}/",
+    output_path=f"s3://{bucket}/{prefix}/output",
+    num_samples_per_tree=512,
+    num_trees=50,
+    )
+    
+    ```
+    
+
+##############################################################
+    
+    ```python
+    newData=marketing_encoded_data.to_numpy()
+    
+    ```
+    
+
+##############################################################
+    
+    ```python
+    rcf.fit(rcf.record_set(newData))
+    
+    ```
+    
+
+##############################################################
+    
+    ```python
+    rcf_inference = rcf.deploy(initial_instance_count=1, instance_type="ml.m4.xlarge")
+    
+    print(f"Endpoint name: {rcf_inference.endpoint_name}")
+    print(f"Training job name: {rcf.latest_training_job.job_name}")
+    
+    ```
+    
+
+##############################################################
+    
+    ```python
+    from sagemaker.serializers import CSVSerializer
+    from sagemaker.deserializers import JSONDeserializer
+    
+    rcf_inference.serializer = CSVSerializer()
+    rcf_inference.deserializer = JSONDeserializer()
+    
+    ```
+    
+
+##############################################################
+    
+    ```python
+    results = rcf_inference.predict(
+    newData[:6], initial_args={"ContentType": "text/csv", "Accept": "application/json"}
+    )
+    print(results)
+    
+    ```
+    
+
+##############################################################
+    
+    ```python
+    print(f"Endpoint name: {rcf_inference.endpoint_name}")
+    ```
+#####################################################################################################################################################################
+#####################################################################################################################################################################
+CODIGO 3
+    
+    ```python
+    from sagemaker import RandomCutForest
+    session = sagemaker.Session()
+    
+    rcf = RandomCutForest(
+    role=execution_role,
+    instance_count=1,
+    instance_type="ml.m4.xlarge",
+    data_location=f"s3://{bucket}/{prefix}/",
+    output_path=f"s3://{bucket}/{prefix}/output",
+    num_samples_per_tree=512,
+    num_trees=50,
+    )
+    
+    ```
+    
+##############################################################
+    
+    ```python
+    newData=marketing_encoded_data.to_numpy()
+    
+    ```
+    
+
+##############################################################
+    
+    ```python
+    rcf.fit(rcf.record_set(newData))
+    
+    ```
+    
+##############################################################
+    
+    ```python
+    rcf_inference = rcf.deploy(initial_instance_count=1, instance_type="ml.m4.xlarge")
+    
+    print(f"Endpoint name: {rcf_inference.endpoint_name}")
+    print(f"Training job name: {rcf.latest_training_job.job_name}")
+    
+    ```
+    
+##############################################################
+    
+    ```python
+    from sagemaker.serializers import CSVSerializer
+    from sagemaker.deserializers import JSONDeserializer
+    
+    rcf_inference.serializer = CSVSerializer()
+    rcf_inference.deserializer = JSONDeserializer()
+    
+    ```
+    
+##############################################################
+    
+    ```python
+    results = rcf_inference.predict(
+    newData[:6], initial_args={"ContentType": "text/csv", "Accept": "application/json"}
+    )
+    print(results)
+    
+    ```
+    
+##############################################################
+    
+    ```python
+    print(f"Endpoint name: {rcf_inference.endpoint_name}")
+    ```
+#####################################################################################################################################################################
+#####################################################################################################################################################################
+CODIGO 4
+
+##############################################################
+    
+    ```python
+    customer_scores = run_sql("""
+     SELECT customerid,
+           marketing_campaign_anomalies_function(
+           age, balance, day, duration,campaign,days_since_last_contact, previous, job_blue_collor, job_entrepreneur,       job_housemaid, job_management, job_retired, job_self_employed,
+           job_services,job_student, job_technician, job_unemployed, job_unknown, month_aug,
+           month_dec,month_feb, month_jan, month_jul, month_jun, month_mar, month_may,month_nov,month_oct, month_sep, marital_married, marital_single,
+           education_secondary,education_tertiary, education_unknown, default_yes, housing_yes, loan_yes
+           ,contact_telephone, contact_unknown) AS score
+     FROM   marketing_campaign_encoded_data a
+     LIMIT  5
+    """);
+    customer_scores.head(10)
+    
+    ```
+    
+##############################################################
+    
+    ```python
+    sql_text = ("""
+        DROP TABLE IF EXISTS marketing_campaign_anomaly_scores;
+        CREATE TABLE marketing_campaign_anomaly_scores AS SELECT customerid,
+      marketing_campaign_anomalies_function (age,balance ,day ,duration ,campaign ,
+      days_since_last_contact ,previous ,job_blue_collor ,job_entrepreneur ,job_housemaid ,
+      job_management ,job_retired ,job_self_employed ,job_services ,job_student ,job_technician ,
+      job_unemployed ,job_unknown ,month_aug ,month_dec ,month_feb , month_jan ,month_jul ,month_jun ,
+      month_mar ,month_may ,month_nov,month_oct ,month_sep ,marital_married ,marital_single ,
+      education_secondary ,education_tertiary ,education_unknown ,default_yes ,housing_yes ,
+      loan_yes ,contact_telephone ,contact_unknown ) as score
+      FROM marketing_campaign_encoded_data a;
+    """
+    )
+    
+    df=run_sql(sql_text)
+    print(df)
+    
+    ```
+    
+##############################################################
+    
+    ```python
+    sql_text = ("""
+      With cut_off_score as ( SELECT ( AVG(score) + 3 * STDDEV(score) ) as score_cutoff_value
+      FROM marketing_campaign_anomaly_scores )
+      SELECT SUM( case when score < score_cutoff_value  then 1 else 0 end) as Non_Anomalous_Data,
+             SUM(case when score > score_cutoff_value then 1 else 0 end) as Anomalous_Data
+      FROM marketing_campaign_anomaly_scores
+      CROSS JOIN cut_off_score ;
+      """)
+    
+    df=run_sql(sql_text)
+    print(df)
+    
+    ```
+    

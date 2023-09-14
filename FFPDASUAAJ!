@@ -1,0 +1,37 @@
+CODIGO 1
+f = open('reviews.txt')
+reviews = f.read().split('\n')
+
+```
+
+CODIGO 2
+
+```
+import boto3
+comprehend = boto3.client(service_name='comprehend', region_name = 'us-east-1')
+all_result = []
+for review in reviews:
+    result = comprehend.detect_sentiment(Text = review, LanguageCode='en')
+    sentiment = result.get('Sentiment')
+    pos = result.get('SentimentScore')['Positive']
+    neg = result.get('SentimentScore')['Negative']
+    neu = result.get('SentimentScore')['Neutral']
+    mixed = result.get('SentimentScore')['Mixed']
+    all_result.append([review, sentiment,pos,neg,neu, mixed])
+
+```
+
+CODIGO 3
+
+```
+import pandas as pd
+result_df = pd.DataFrame(all_result,
+                      columns = ['review','sentiment', 'positive_score','negative_score', 'neutral_score','mixed_score'])
+sentiments_count = result_df['sentiment'].value_counts()
+print ("The sentiment that has the most reviews is {}, the total count for that sentiment is {}"
+      .format(sentiments_count.index[0],\
+      sentiments_count.iloc[0]))
+sentiment_score_col_name = 'positive_score'
+single_review = result_df.sort_values(by=sentiment_score_col_name, ascending=False)['review'].iloc[0]
+print ('The review that has the highest score from the most popular sentiment:{}'.format(single_review))
+```

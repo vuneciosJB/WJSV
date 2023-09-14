@@ -1,0 +1,45 @@
+CODIGO
+    ```
+    {
+     "Version": "2012-10-17",
+     "Statement": [
+         {
+             "Sid": "1",
+             "Effect": "Allow",
+             "Action": [
+                 "ec2:DescribeVpcs"
+             ],
+             "Resource": "*"
+         },
+         {
+             "Sid": "2",
+             "Effect": "Allow",
+             "Action": [
+                 "ec2:CreateFlowLogs"
+             ],
+             "Resource": "*"
+         },
+         {
+             "Sid": "3",
+             "Effect": "Allow",
+             "Action": [
+                 "dynamodb:PutItem"
+             ],
+             "Resource": "arn:aws:dynamodb:us-west-2:[YOUR-ACCOUNT-ID-HERE]:table/SecurityEventsTable"
+         },
+         {
+             "Sid": "4",
+             "Effect": "Allow",
+             "Action": "sns:Publish",
+             "Resource": ["arn:aws:sns:us-west-2:[YOUR-ACCOUNT-ID-HERE]:SecurityEventsSnsTopic"]
+         },
+         {
+             "Sid": "5",
+             "Effect": "Allow",
+             "Action": "iam:PassRole",
+             "Resource": ["arn:aws:iam::[YOUR-ACCOUNT-ID-HERE]:role/FlowLogsDeliveryRole"]
+         }
+     ]
+    }
+    
+    ```

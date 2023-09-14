@@ -1,0 +1,7 @@
+CODIGO 1
+
+`aws lambda add-permission --function-name SampleFunctionTestPermissions --action lambda:InvokeFunction --statement-id AdminUserAccessPermission --principal {ARN_Of_SecurityAdmin_User}` *Onde `{ARN_Of_SecurityAdmin_User}` é o ARN da conta de usuário do IAM que invocará essa função*
+
+CODIGO 2
+
+`aws lambda add-permission --function-name SampleFunctionTestPermissions --statement-id EventRulePermission --action "lambda:InvokeFunction" --principal events.amazonaws.com --source-arn {ARN_Of_Event_Rule}` *Onde `{ARN_Of_Event_Rule}` é o ARN da regra do Amazon EventBridge que invocará essa função*
